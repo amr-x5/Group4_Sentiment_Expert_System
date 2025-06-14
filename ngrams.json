@@ -1,0 +1,25 @@
+{
+    "sangat baik": {"score": 1.0, "aspect": "Overall"},
+    "very good": {"score": 1.0, "aspect": "Overall"},
+    "good quality": {"score": 0.8, "aspect": "Quality"},
+    "kualiti terbaik": {"score": 0.9, "aspect": "Quality"},
+    "high quality": {"score": 0.9, "aspect": "Quality"},
+    "well made": {"score": 0.8, "aspect": "Quality"},
+    "penghantaran cepat": {"score": 0.9, "aspect": "Shipping"},
+    "fast delivery": {"score": 0.9, "aspect": "Shipping"},
+    "seller responsif": {"score": 0.8, "aspect": "Seller Service"},
+    "good value for money": {"score": 0.9, "aspect": "Value for Money"},
+    "harga berpatutan": {"score": 0.8, "aspect": "Value for Money"},
+
+    "tidak suka": {"score": -0.9, "aspect": "Overall"},
+    "dont like": {"score": -0.9, "aspect": "Overall"},
+    "not good": {"score": -0.8, "aspect": "Overall"},
+    "tak baik": {"score": -0.8, "aspect": "Overall"},
+    "penghantaran lambat": {"score": -0.8, "aspect": "Shipping"},
+    "slow delivery": {"score": -0.8, "aspect": "Shipping"},
+    "barang rosak": {"score": -0.9, "aspect": "Quality"},
+    "item damaged": {"score": -0.9, "aspect": "Quality"},
+    "cheap copy": {"score": -0.9, "aspect": "Authenticity"},
+    "not authentic": {"score": -1.0, "aspect": "Authenticity"},
+    "bukan original": {"score": -1.0, "aspect": "Authenticity"}
+}

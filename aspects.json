@@ -1,0 +1,48 @@
+{
+    "quality": "Quality",
+    "kualiti": "Quality",
+    "kain": "Quality",
+    "fabric": "Quality",
+    "jahitan": "Quality",
+    "stitching": "Quality",
+    "material": "Quality",
+    "made": "Quality",
+    "condition": "Quality",
+    "craftsmanship": "Quality",
+    "durability": "Quality",
+    "tahan": "Quality",
+
+    "shipping": "Shipping",
+    "delivery": "Shipping",
+    "penghantaran": "Shipping",
+    "postage": "Shipping",
+    "pos": "Shipping",
+    "courier": "Shipping",
+    "kurier": "Shipping",
+
+    "seller service": "Seller Service",
+    "seller": "Seller Service",
+    "penjual": "Seller Service",
+    "servis": "Seller Service",
+    "respons": "Seller Service",
+    "response": "Seller Service",
+
+    "packaging": "Packaging",
+    "pembungkusan": "Packaging",
+    "kotak": "Packaging",
+    "box": "Packaging",
+    "bungkusan": "Packaging",
+    "wrap": "Packaging",
+
+    "authenticity": "Authenticity",
+    "originality": "Authenticity",
+    "original": "Authenticity",
+    "genuine": "Authenticity",
+    "ori": "Authenticity",
+
+    "price": "Value for Money",
+    "harga": "Value for Money",
+    "value": "Value for Money",
+    "murah": "Value for Money",
+    "berbaloi": "Value for Money"
+}
