@@ -1,32 +1,54 @@
+# main.py
 from inference_engine import InferenceEngine
 import json
 
 
-def main():
+def cli_app():
     """
-    A simple command-line interface for the Expert System.
+    A command-line interface to test the product review analysis expert system
+    using manually entered reviews.
     """
-
     engine = InferenceEngine()
 
     print("*" * 50)
-    print("Welcome to the Shopee Review Sentiment Analysis ES")
-    print(f"Aligning with SDG 12: Responsible Consumption ")
+    print("Welcome to the Product Review Analysis ES")
     print("*" * 50)
+    # Removed .env and API key check as it's no longer needed for scraper
+
+    print("-" * 50)
+    print("Please enter product reviews one by one.")
+    print("Type 'done' on a new line when you have finished entering all reviews.")
+    print("Or type 'exit' to quit the application.")
+    print("-" * 50)
 
     while True:
-        review = input("\nPlease enter a product review text (or type 'exit' to quit):\n> ")
-        if review.lower() == 'exit':
-            break
+        reviews_list = []
+        print("\nEnter reviews for the product (type 'done' when finished, or 'exit' to quit):")
+        while True:
+            review_input = input("> ")
+            if review_input.lower() == 'done':
+                if not reviews_list:
+                    print("No reviews entered. Please enter at least one review or type 'exit'.")
+                    continue # Go back to asking for reviews for current product
+                break # Proceed to analysis
+            elif review_input.lower() == 'exit':
+                return # Exit the cli_app function
+            if review_input.strip(): # Add non-empty reviews
+                reviews_list.append(review_input)
+        
+        if not reviews_list: # Should not happen if 'done' logic is correct, but as a safeguard
+            print("No reviews were provided. Starting over or type 'exit'.")
+            continue
 
-        # The engine performs the analysis
-        results = engine.analyze_review(review)
+        results = engine.analyze_product_reviews(reviews_list)
 
-        # The UI displays the results
-        print("\n--- Sentiment Analysis Results ---")
-        print(json.dumps(results, indent=2))
+        print("\n--- Product Analysis Summary ---")
+        if "error" in results:
+            print(f"ERROR: {results['error']}")
+        else:
+            print(json.dumps(results, indent=2))
         print("--------------------------------\n")
 
 
 if __name__ == "__main__":
-    main()
+    cli_app()

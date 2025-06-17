@@ -1,66 +1,108 @@
+# app.py
 import gradio as gr
-import json
 from inference_engine import InferenceEngine
 
-# Instantiate your expert system's inference engine
+# --- Instantiate the Expert System's Core ---
 engine = InferenceEngine()
 
-def analyze_sentiment(review_text):
+
+def analyze_product_reviews_gradio(reviews_text: str):
     """
-    This function takes raw review text, passes it to the expert system,
-    and formats the JSON output for display.
+    Main function for Gradio. Takes a string of reviews, runs the analysis, and formats the output.
     """
-    if not review_text.strip():
-        return "Please enter a review text.", "No explanation available."
+    if not reviews_text.strip():
+        return "Please enter product reviews.", None, None, None
 
-    # Get the analysis results from the inference engine
-    results = engine.analyze_review(review_text)
+    # Split the input string into a list of reviews, assuming one review per line
+    reviews_list = [review.strip() for review in reviews_text.splitlines() if review.strip()]
 
-    # Separate the main analysis from the explanation
-    explanation_list = results.pop("Explanation", [])
-    explanation_str = "\n".join(f"- {item}" for item in explanation_list)
+    if not reviews_list:
+        return "No valid reviews entered. Please provide at least one review.", None, None, None
 
-    # Format the main results as a pretty-printed JSON string
-    formatted_results = json.dumps(results, indent=2)
+    summary = engine.analyze_product_reviews(reviews_list)
 
-    return formatted_results, explanation_str
+    # --- Error Handling ---
+    if "error" in summary:
+        error_message = f"❌ **Error:** {summary['error']}"
+        return error_message, None, None, None
+
+    # --- Formatting the Output for the Dashboard ---
+    status = summary.get("data_source", "Manual Input") # Default to Manual Input
+    status_emoji = "🧪" # Using beaker emoji for manual/simulated
+    status_output = f"**{status_emoji} Analysis Complete!** (Source: {status})"
+
+    recommendation = summary.get("overall_recommendation", "Neutral")
+    overall_score = summary.get("overall_product_score", 0)
+    recommendation_output = {
+        "label": recommendation,
+        "conf": round(abs(overall_score), 2)
+    }
+
+    total = summary.get("total_reviews_analyzed", 0)
+    breakdown = summary.get("review_breakdown", {})
+    pos = breakdown.get("positive", 0)
+    neg = breakdown.get("negative", 0)
+    neu = breakdown.get("neutral", 0)
+    breakdown_md = f"""
+    ### Review Snapshot
+    - **Total Reviews Analyzed:** {total}
+    - **👍 Positive:** {pos}
+    - **👎 Negative:** {neg}
+    - **🤔 Neutral:** {neu}
+    """
+
+    aspects = summary.get("aspect_summary", {})
+    if aspects:
+        aspect_md = "### Aspect-Based Insights\n| Aspect | Avg. Score | Recommendation | Mentions (Pos/Neg) |\n| :--- | :---: | :---: | :---: |\n"
+        sorted_aspects = sorted(aspects.items(),
+                                key=lambda item: item[1]['positive_mentions'] + item[1]['negative_mentions'],
+                                reverse=True)
+        for aspect, details in sorted_aspects:
+            aspect_md += f"| **{aspect}** | `{details.get('average_score', 0)}` | {details.get('label', 'N/A')} | {details.get('positive_mentions', 0)} / {details.get('negative_mentions', 0)} |\n"
+    else:
+        aspect_md = "### Aspect-Based Insights\nNo specific aspects were mentioned."
+
+    return status_output, recommendation_output, breakdown_md, aspect_md
+
 
 # --- Gradio Interface Definition ---
+with gr.Blocks(theme=gr.themes.Soft(), title="Product Review Analyzer") as app_gradio: # Renamed app to app_gradio to avoid conflict
+    gr.Markdown(
+        """
+        # Product Review Analyzer
+        An Expert System by **Group 4: The Star Syndicate**
+        """
+    )
+    with gr.Row():
+        reviews_input_gradio = gr.Textbox(
+            label="Enter Product Reviews",
+            placeholder="Enter each review on a new line...\nExample:\nThis product is great!\nThe quality is amazing for the price.",
+            lines=10,
+            scale=4
+        )
+        submit_btn = gr.Button("Analyze Reviews", variant="primary", scale=1)
 
-# Define the input and output components for the web UI
-input_textbox = gr.Textbox(
-    lines=5,
-    label="Product Review Text",
-    placeholder="Enter a Shopee product review here..."
-)
+    gr.Examples(
+        [
+            "This is an amazing product, highly recommended!\nI love the features and the design.\nBattery life is excellent.",
+            "Not happy with the purchase. It broke after a week.\nCustomer service was not helpful."
+        ],
+        inputs=reviews_input_gradio
+    )
 
-output_json = gr.JSON(label="Sentiment Analysis Results")
-output_explanation = gr.Markdown(label="🔎 Explanation (How the system decided)")
+    status_output = gr.Markdown(label="Status")
+    with gr.Row():
+        with gr.Column(scale=1):
+            recommendation_output = gr.Label(label="Overall Recommendation")
+            breakdown_output = gr.Markdown(label="Review Breakdown")
+        with gr.Column(scale=2):
+            aspect_output = gr.Markdown(label="Aspect Summary")
 
+    submit_btn.click(
+        fn=analyze_product_reviews_gradio,
+        inputs=reviews_input_gradio,
+        outputs=[status_output, recommendation_output, breakdown_output, aspect_output]
+    )
 
-# Create the Gradio interface
-# Use the 'theme' parameter for better styling
-# Use the 'title' and 'description' for better presentation
-# Provide examples to guide the user
-iface = gr.Interface(
-    fn=analyze_sentiment,
-    inputs=input_textbox,
-    outputs=[output_json, output_explanation],
-    title="Shopee Review Sentiment Analysis ES",
-    description=(
-        "An expert system by **Group 4: The Star Syndicate** (WID2001). "
-        "Enter a product review to see an aspect-based sentiment analysis. "
-        "This system demonstrates explainable AI by showing the rules it used."
-    ),
-    examples=[
-        ["The fabric quality is excellent, but the shipping was very slow."],
-        ["This is a highcopy not authentic as advertised. But it's still well made."],
-        ["I dont like this product it is a cheap copy"],
-    ],
-    allow_flagging="never",
-    theme=gr.themes.Soft()
-)
-
-# Launch the web application
 if __name__ == "__main__":
-    iface.launch()
+    app_gradio.launch()

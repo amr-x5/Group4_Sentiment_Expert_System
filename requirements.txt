@@ -1,2 +1,5 @@
 nltk
 gradio
+requests
+python-dotenv
+Flask
